@@ -50,8 +50,12 @@ inline void log_info(const char * fmt, ...) {
 }
 
 // Read the model's general.architecture KV via the public meta accessor and
-// compare to the sidecar's cv.arch. The legacy in-tree path used internal
-// llm_arch_from_string + enum compare; out-of-tree we just compare strings.
+// compare to the sidecar's cv.arch. Family-prefix match accepts matches where
+// one side is the canonical base name (e.g. "gemma4") and the other carries
+// an attention-variant suffix (e.g. "gemma4-iswa"). HF transformers configs
+// often emit the variant form; llama.cpp GGUF arch tags canonicalize to the
+// base form, so a strict string-equal would silently reject sidecars built
+// against the same model.
 bool model_arch_matches(const llama_model & model, const std::string & cv_arch) {
     char buf[256] = {0};
     const int n = llama_model_meta_val_str(&model, "general.architecture", buf, sizeof(buf));
@@ -59,7 +63,19 @@ bool model_arch_matches(const llama_model & model, const std::string & cv_arch) 
         log_err("control_vector: model has no 'general.architecture' meta\n");
         return false;
     }
-    return std::string(buf) == cv_arch;
+    const std::string model_arch = buf;
+    if (cv_arch == model_arch) return true;
+    if (cv_arch.rfind(model_arch + "-", 0) == 0) {
+        log_info("control_vector: arch '%s' accepted as variant of model arch '%s'\n",
+                 cv_arch.c_str(), model_arch.c_str());
+        return true;
+    }
+    if (model_arch.rfind(cv_arch + "-", 0) == 0) {
+        log_info("control_vector: arch '%s' accepted as variant of model arch '%s'\n",
+                 cv_arch.c_str(), model_arch.c_str());
+        return true;
+    }
+    return false;
 }
 
 struct control_vector_handler : public llama_sidecar_handler {
