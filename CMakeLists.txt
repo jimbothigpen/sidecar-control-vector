@@ -34,3 +34,12 @@ target_link_libraries(sidecar_control_vector PRIVATE
     ${LLAMA_LIB}
     ${GGML_LIB}
     ${GGML_BASE_LIB})
+
+# Default the install prefix to LLAMA_INSTALL_PREFIX so the .so lands
+# alongside the engine. Override with -DCMAKE_INSTALL_PREFIX=... if needed.
+if(CMAKE_INSTALL_PREFIX_INITIALIZED_TO_DEFAULT)
+    set(CMAKE_INSTALL_PREFIX "${LLAMA_INSTALL_PREFIX}" CACHE PATH "" FORCE)
+endif()
+
+install(TARGETS sidecar_control_vector
+        LIBRARY DESTINATION lib/sidecars)
