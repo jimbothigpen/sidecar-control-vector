@@ -1,6 +1,6 @@
 # sidecar-control-vector
 
-Out-of-tree sidecar handler plugin for [frankenturbo2](https://github.com/jimbothigpen/frankenturbo2):
+Out-of-tree sidecar handler plugin for the hub [`llama.cpp` fork](https://github.com/jimbothigpen/llama.cpp) (`jimbothigpen/llama.cpp`, 'llama-yggdrasil'):
 per-layer additive steering vector applied at the residual-stream output
 of each transformer layer in a configured range.
 
@@ -10,10 +10,10 @@ and chain with other sidecars (abliteration, logit_bias, etc.).
 
 ## Build
 
-Requires an installed frankenturbo2 engine.
+Requires the hub `llama.cpp` fork built + installed with the sidecar-plugin ABI.
 
 ```bash
-cmake -S . -B build -DLLAMA_INSTALL_PREFIX=/opt/llama-frankenturbo2-vulkan
+cmake -S . -B build -DLLAMA_INSTALL_PREFIX=/opt/llama-yggdrasil-vulkan
 cmake --build build
 ```
 
@@ -22,8 +22,8 @@ Output: `build/libsidecar_control_vector.so`.
 ## Use
 
 ```bash
-LD_LIBRARY_PATH=/opt/llama-frankenturbo2-vulkan/lib \
-/opt/llama-frankenturbo2-vulkan/bin/llama-cli \
+LD_LIBRARY_PATH=/opt/llama-yggdrasil-vulkan/lib \
+/opt/llama-yggdrasil-vulkan/bin/llama-cli \
   --sidecar-load-plugin /path/to/libsidecar_control_vector.so \
   --sidecar-vectors /path/to/your.cv.gguf \
   -m model.gguf -p "..."
@@ -61,4 +61,4 @@ cv.vectors              f32  ggml shape [n_embd, n_layer]; row 0 unused
 
 The engine's legacy `--control-vector` path remains untouched — both can be
 used concurrently against the same model with no conflict. Eventual
-deprecation of the legacy path is a frankenturbo2-side decision.
+deprecation of the legacy path is a llama-yggdrasil-side decision.
