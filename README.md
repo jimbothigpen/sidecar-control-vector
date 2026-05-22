@@ -44,7 +44,8 @@ python tools/convert.py \
 ```
 
 `gguf-py` is needed; either `pip install gguf` or set
-`FRANKENTURBO2_DIR=/path/to/frankenturbo2` to point at the engine clone.
+`FRANKENTURBO2_DIR=/path/to/llama.cpp` to point at the hub
+`jimbothigpen/llama.cpp` fork clone (the env-var name is legacy).
 
 ## On-disk schema
 
